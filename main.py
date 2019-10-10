@@ -46,20 +46,24 @@ class MainWindow(QMainWindow):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
+        QApplication.beep()
         # Path to Selected CSV File
         path = QFileDialog.getOpenFileName(self, "Open CSV File", directory, "Comma-Separated Values File (*.csv)")[0]
         if not path:
             return
         filename = QUrl.fromLocalFile(path).fileName()
 
+        QApplication.beep()
         # Dialog for user to select features and label
         selectionFeaturesDialog = SelectionFeaturesDialog(path)
         dialogCode = selectionFeaturesDialog.exec_()
+
 
         # If Dialog was cancelled, then avoid opening a new tab
         if dialogCode == 0:
             return
         elif (len(selectionFeaturesDialog.getFeatures()) == 0 or len(selectionFeaturesDialog.getLabel()) == 0):
+            QApplication.beep()
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Error")

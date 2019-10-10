@@ -59,8 +59,8 @@ class ComputeGroupBox(QGroupBox):
         # Groupbox to contain the line edits for parameters
         parameterGroupBox = QGroupBox("Parameters")
         parameterGroupBox.setFixedWidth(300)
-        parameterGroupBoxLayout = QFormLayout()
-        parameterGroupBox.setLayout(parameterGroupBoxLayout)
+        self.parameterGroupBoxLayout = QFormLayout()
+        parameterGroupBox.setLayout(self.parameterGroupBoxLayout)
 
         # Base line edits that are used by every algorithm
         self.testSizeSpinBox = QDoubleSpinBox()
@@ -83,9 +83,9 @@ class ComputeGroupBox(QGroupBox):
         self.cvSpinBox.setValue(10)
         self.cvSpinBox.setFixedWidth(100)
 
-        parameterGroupBoxLayout.addRow(QLabel("test_size"), self.testSizeSpinBox)
-        parameterGroupBoxLayout.addRow(QLabel("random_state"), self.randomStateSpinBox)
-        parameterGroupBoxLayout.addRow(QLabel("cross_validation"), self.cvSpinBox)
+        self.parameterGroupBoxLayout.addRow(QLabel("test_size"), self.testSizeSpinBox)
+        self.parameterGroupBoxLayout.addRow(QLabel("random_state"), self.randomStateSpinBox)
+        self.parameterGroupBoxLayout.addRow(QLabel("cross_validation"), self.cvSpinBox)
 
         # Base columns are test_size, random_state, cross_validation, accuracy, and accuracy(cv)
         self.data = [['', '', '', '', '']]
@@ -97,7 +97,7 @@ class ComputeGroupBox(QGroupBox):
             self.numberOfNeighborsSpinBox.setMaximum(100)
             self.numberOfNeighborsSpinBox.setValue(3)
             self.numberOfNeighborsSpinBox.setFixedWidth(100)
-            parameterGroupBoxLayout.addRow(QLabel("n_neighbors"), self.numberOfNeighborsSpinBox)
+            self.parameterGroupBoxLayout.addRow(QLabel("n_neighbors"), self.numberOfNeighborsSpinBox)
             self.columns.append("n_neighbors")
             self.data[0].append('')
         elif self.algorithm == "Random Forest":
@@ -106,7 +106,7 @@ class ComputeGroupBox(QGroupBox):
             self.numberOfEstimatorsSpinBox.setMaximum(100)
             self.numberOfEstimatorsSpinBox.setValue(19)
             self.numberOfEstimatorsSpinBox.setFixedWidth(100)
-            parameterGroupBoxLayout.addRow(QLabel("n_estimators"), self.numberOfEstimatorsSpinBox)
+            self.parameterGroupBoxLayout.addRow(QLabel("n_estimators"), self.numberOfEstimatorsSpinBox)
             self.data[0].append('')
             self.columns.append("n_estimators")
         elif self.algorithm == "Logistic Regression":
@@ -114,7 +114,7 @@ class ComputeGroupBox(QGroupBox):
             self.solverComboBox.addItems(["lbfgs", "newton-cg", "liblinear", "sag", "saga"])
             self.solverComboBox.setCurrentText("lbfgs")
             self.solverComboBox.setFixedWidth(100)
-            parameterGroupBoxLayout.addRow(QLabel("solver"), self.solverComboBox)
+            self.parameterGroupBoxLayout.addRow(QLabel("solver"), self.solverComboBox)
             self.data[0].append('')
             self.columns.append("solver")
         elif self.algorithm == "Multilayer Perceptron":
@@ -124,7 +124,7 @@ class ComputeGroupBox(QGroupBox):
             self.numberOfMaxIterationsSpinBox.setMaximum(100000)
             self.numberOfMaxIterationsSpinBox.setValue(1000)
             self.numberOfMaxIterationsSpinBox.setFixedWidth(100)
-            parameterGroupBoxLayout.addRow(QLabel("max_iter"), self.numberOfMaxIterationsSpinBox)
+            self.parameterGroupBoxLayout.addRow(QLabel("max_iter"), self.numberOfMaxIterationsSpinBox)
             self.columns.append("max_iter")
             self.data[0].append('')
 
@@ -135,21 +135,39 @@ class ComputeGroupBox(QGroupBox):
             self.alphaSpinBox.setMinimum(0.00001)
             self.alphaSpinBox.setMaximum(10000.000)
             self.alphaSpinBox.setFixedWidth(100)
-            parameterGroupBoxLayout.addRow(QLabel("alpha"), self.alphaSpinBox)
+            self.parameterGroupBoxLayout.addRow(QLabel("alpha"), self.alphaSpinBox)
             self.columns.append("alpha")
             self.data[0].append('')
 
             self.numberOfHiddenLayerSizesSpinBox = QSpinBox()
-            self.numberOfHiddenLayerSizesSpinBox.setValue(3)
+            self.numberOfHiddenLayerSizesSpinBox.setMinimum(1)
+            self.numberOfHiddenLayerSizesSpinBox.setMaximum(15)
+            self.numberOfHiddenLayerSizesSpinBox.setValue(1)
             self.numberOfHiddenLayerSizesSpinBox.setFixedWidth(100)
-            parameterGroupBoxLayout.addRow(QLabel("hidden_layer_sizes"), self.numberOfHiddenLayerSizesSpinBox)
+            self.numberOfHiddenLayerSizesSpinBox.valueChanged.connect(self.hiddenLayerValueChange)
+            self.parameterGroupBoxLayout.addRow(QLabel("number of hidden layers"), self.numberOfHiddenLayerSizesSpinBox)
+
+            self.nodeLabels = []
+            self.nodeSpinBoxes = []
+
+            self.numberOfNodesSpinBox = QSpinBox()
+            self.numberOfNodesSpinBox.setMinimum(1)
+            self.numberOfNodesSpinBox.setValue(1)
+            self.numberOfNodesSpinBox.setFixedWidth(100)
+
+            label = QLabel("number of nodes (layer 1)")
+
+            self.parameterGroupBoxLayout.addRow(label, self.numberOfNodesSpinBox)
+            self.nodeLabels.append(label)
+            self.nodeSpinBoxes.append(self.numberOfNodesSpinBox)
+
             self.columns.append("hidden_layer_sizes")
             self.data[0].append('')
 
         self.computeButton = QPushButton("Compute")
         self.computeButton.setFixedWidth(175)
 
-        parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.computeButton)
         self.computeButton.clicked.connect(self.compute)
 
         resultsGroupBox = QGroupBox("Results")
@@ -168,6 +186,35 @@ class ComputeGroupBox(QGroupBox):
 
         layout.addWidget(parameterGroupBox)
         layout.addWidget(resultsGroupBox)
+
+    def hiddenLayerValueChange(self):
+        numberOfLayers = int(self.numberOfHiddenLayerSizesSpinBox.text())
+        numberOfSpinBoxes = len(self.nodeSpinBoxes)
+
+        self.parameterGroupBoxLayout.removeWidget(self.computeButton)
+        self.parameterGroupBoxLayout.removeRow(self.parameterGroupBoxLayout.rowCount() - 1)
+
+        # Removing hidden layer sizes
+        if (numberOfLayers <= numberOfSpinBoxes):
+            for i in range(numberOfLayers, numberOfSpinBoxes):
+                nodeLabelToRemove = self.nodeLabels.pop()
+                nodeSpinBoxToRemove = self.nodeSpinBoxes.pop()
+                self.parameterGroupBoxLayout.removeRow(self.parameterGroupBoxLayout.rowCount() - 1)
+        else:
+            # Adding hidden layer sizes
+            for i in range(numberOfSpinBoxes, numberOfLayers):
+                newNodeSpinBox = QSpinBox()
+                newNodeSpinBox.setMinimum(1)
+                newNodeSpinBox.setValue(1)
+                newNodeSpinBox.setFixedWidth(100)
+
+                label = QLabel("number of nodes (layer" + str(i + 1) + ")")
+                self.parameterGroupBoxLayout.addRow(label, newNodeSpinBox)
+                self.nodeLabels.append(label)
+                self.nodeSpinBoxes.append(newNodeSpinBox)
+
+
+        self.parameterGroupBoxLayout.addRow(self.computeButton)
 
     def compute(self):
         #Progress bar
@@ -206,12 +253,19 @@ class ComputeGroupBox(QGroupBox):
         elif self.algorithm == "Linear SVC":
             self.classifier = LinearSVC()
         elif self.algorithm == "Multilayer Perceptron":
+            # Get the tuple of nodes and hidden layer sizes
+            arrayOfNodesForEachHiddenLayer = list([int(spinbox.text()) for spinbox in self.nodeSpinBoxes])
+            s = [str(i) for i in arrayOfNodesForEachHiddenLayer]
+            hiddenLayersAndNodes = ", ".join(s)
+            tupleOfNodes = tuple(arrayOfNodesForEachHiddenLayer)
+
+
             self.classifier = MLPClassifier(activation='logistic', solver='adam', max_iter=int(self.numberOfMaxIterationsSpinBox.text()),
                                             learning_rate_init=0.002, alpha=float(self.alphaSpinBox.text()),
-                                            hidden_layer_sizes=(2,2))
+                                            hidden_layer_sizes=tupleOfNodes)
             self.recordParametersRow.append(str(self.numberOfMaxIterationsSpinBox.text()))
             self.recordParametersRow.append(self.alphaSpinBox.text())
-            self.recordParametersRow.append(self.numberOfHiddenLayerSizesSpinBox.text())
+            self.recordParametersRow.append(hiddenLayersAndNodes)
 
         progressDialog.setWindowTitle("Training the model...")
         progressDialog.setValue(0)
@@ -248,6 +302,7 @@ class ComputeGroupBox(QGroupBox):
         progressDialog.setWindowTitle("Done...")
         progressDialog.setValue(100)
         QApplication.processEvents()
+        QApplication.beep()
         progressDialog.close()
 
 
