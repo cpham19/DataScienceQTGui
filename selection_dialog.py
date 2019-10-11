@@ -15,8 +15,16 @@ class SelectionFeaturesDialog(QDialog):
 
     def initUI(self):
         # Dialog stuff
+
         self.setWindowTitle("Select features and label")
         self.setWindowFlags(Qt.WindowTitleHint | Qt.CustomizeWindowHint)
+
+        self.setStyleSheet(""" 
+            # QWidget {
+            #     background: gray;
+            #     color:white;
+            # }
+        """)
 
         self.resize(1280, 720)
 

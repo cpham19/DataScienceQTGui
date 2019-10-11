@@ -1,8 +1,7 @@
-import os, pandas as pd
-from selection_dialog import SelectionFeaturesDialog
-from tabwidget import GroupBox
-from PyQt5.QtWidgets import QApplication, QWidget, QTabWidget, QGridLayout, QMainWindow, QAction, QFileDialog, QMessageBox
-from PyQt5.QtCore import QUrl
+import os
+from tabwidget import MainTabWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMainWindow, QAction, QStyleFactory
+from PyQt5.QtGui import QIcon
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -15,6 +14,39 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage('Ready')
         self.resize(1280, 720)
         self.setWindowTitle('Data Science GUI')
+        pathToWindowIcon = os.path.dirname(os.path.realpath(__file__)) + "\\assets" + "\\data_science_icon.png"
+        self.setWindowIcon(QIcon(pathToWindowIcon))
+
+        self.setStyleSheet("""
+                QMenuBar {
+                    background-color: rgba(49,49,49, 0.7);
+                    color: rgb(255,255,255);
+                    border: 1px solid #000;
+                    font-size:14px;
+                    font-weight: bold;
+                }
+
+                QMenuBar::item {
+                    background-color: rgba(49,49,49, 0.7);
+                    color: rgb(255,255,255);
+                }
+
+                QMenuBar::item::selected {
+                    background-color: rgb(255,127,80);
+                }
+
+                QMenu {
+                    background-color: rgba(49,49,49, 0.7);
+                    color: rgb(255,255,255);
+                    border: 1px solid #000;
+                    font-size:14px;
+                    font-weight: bold;         
+                }
+
+                QMenu::item::selected {
+                    background-color: rgb(255,127,80);
+                }
+        """)
 
         # Menu bar
         menuBar = self.menuBar()
@@ -22,8 +54,9 @@ class MainWindow(QMainWindow):
         # File menu option
         menuFile = menuBar.addMenu("File")
 
-        newAction = QAction("Open a CSV File", self)
-        newAction.triggered.connect(self.newTab)
+        pathToNewCSVIcon = os.path.dirname(os.path.realpath(__file__)) + "\\assets" + "\\csv_icon.png"
+        newAction = QAction(QIcon(pathToNewCSVIcon),"Open a CSV File", self)
+        newAction.setShortcut("Ctrl+N")
         menuFile.addAction(newAction)
 
         # Main Widget
@@ -33,60 +66,15 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)
 
         # Tab Widget
-        self.mainTabWidget = QTabWidget(mainWidget)
-        self.mainTabWidget.setTabsClosable(True)
-        self.mainTabWidget.setCurrentIndex(-1)
-        self.mainTabWidget.tabCloseRequested.connect(self.closeTab)
-        self.mainTabWidget.setStyleSheet("QTabBar::tab { height: 50px; width: 300px;}")
+        self.mainTabWidget = MainTabWidget()
+        newAction.triggered.connect(self.mainTabWidget.newTab)
         layout.addWidget(self.mainTabWidget)
-
-    def newTab(self, currentIndex):
-        # File Dialog (uses csv directory)
-        directory = os.path.dirname(os.path.realpath(__file__)) + "\csv"
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        QApplication.beep()
-        # Path to Selected CSV File
-        path = QFileDialog.getOpenFileName(self, "Open CSV File", directory, "Comma-Separated Values File (*.csv)")[0]
-        if not path:
-            return
-        filename = QUrl.fromLocalFile(path).fileName()
-
-        QApplication.beep()
-        # Dialog for user to select features and label
-        selectionFeaturesDialog = SelectionFeaturesDialog(path)
-        dialogCode = selectionFeaturesDialog.exec_()
-
-
-        # If Dialog was cancelled, then avoid opening a new tab
-        if dialogCode == 0:
-            return
-        elif (len(selectionFeaturesDialog.getFeatures()) == 0 or len(selectionFeaturesDialog.getLabel()) == 0):
-            QApplication.beep()
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText('Please open the CSV file again select at least one feature and select the label!')
-            msg.setWindowTitle("Error")
-            msg.exec_()
-            return
-
-        features = selectionFeaturesDialog.getFeatures()
-        label = selectionFeaturesDialog.getLabel()
-        tabGroupBox = GroupBox(path, features, label)
-        self.mainTabWidget.addTab(tabGroupBox, filename)
-        self.counter += 1
-        self.mainTabWidget.setCurrentWidget(tabGroupBox)
-
-    def closeTab(self, currentIndex):
-        tabWidgetToClose = self.mainTabWidget.widget(currentIndex)
-        tabWidgetToClose.deleteLater()
-        self.mainTabWidget.removeTab(currentIndex)
-
 
 def main():
     app = QApplication([])
+    print(QStyleFactory.keys())
+    app.setStyle('')
+
     window = MainWindow()
     window.show()
     app.exec_()
