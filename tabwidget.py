@@ -129,6 +129,19 @@ class AlgorithmGroupBox(QGroupBox):
                 self.features.remove(feature)
             self.features = self.features + list(new_numerical_dataframe.columns)
 
+            messageBox = QMessageBox()
+            messageBox.setWindowTitle("Detected Categorical Features!")
+            string = ", ".join(categorical_features)
+            messageBox.setText(string + " are categorical features. They have been one-hot encoded.");
+            messageBox.setStyleSheet("""
+                QMessageBox {
+                    background-color: rgb(255, 229, 204);
+                    color: #fffff8;
+                }
+            """)
+
+            messageBox.exec()
+
 # An Inner QTabWidget that has different tabs for each machine learning algorithm
 class TabWidget(QTabWidget):
     def __init__(self, X, y):
