@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet("""
                 QMenuBar {
-                    background-color: rgba(49,49,49, 0.7);
+                    background-color: rgba(49,49,49, 0.5);
                     color: rgb(255,255,255);
                     border: 1px solid #000;
                     font-size:14px;
@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
                 }
 
                 QMenuBar::item {
-                    background-color: rgba(49,49,49, 0.7);
+                    background-color: rgba(49,49,49, 0.5);
                     color: rgb(255,255,255);
                 }
 
@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
                 }
 
                 QMenu {
-                    background-color: rgba(49,49,49, 0.7);
+                    background-color: rgba(49,49,49, 0.5);
                     color: rgb(255,255,255);
                     border: 1px solid #000;
                     font-size:14px;
