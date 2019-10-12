@@ -1,6 +1,6 @@
 import os
 from tabwidget import MainTabWidget
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMainWindow, QAction, QStyleFactory
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMainWindow, QAction, QStyleFactory, QMessageBox
 from PyQt5.QtGui import QIcon
 
 class MainWindow(QMainWindow):
@@ -18,6 +18,10 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(pathToWindowIcon))
 
         self.setStyleSheet("""
+                QMainWindow {
+                    background-color: rgb(255, 229, 204);
+                    color: #fffff8;
+                }
                 QMenuBar {
                     background-color: rgba(49,49,49, 0.5);
                     color: rgb(255,255,255);
@@ -53,11 +57,16 @@ class MainWindow(QMainWindow):
 
         # File menu option
         menuFile = menuBar.addMenu("File")
+        menuAbout = menuBar.addMenu("About")
 
         pathToNewCSVIcon = os.path.dirname(os.path.realpath(__file__)) + "\\assets" + "\\csv_icon.png"
         newAction = QAction(QIcon(pathToNewCSVIcon),"Open a CSV File", self)
         newAction.setShortcut("Ctrl+N")
         menuFile.addAction(newAction)
+
+        aboutAction = QAction("Author", self)
+        aboutAction.triggered.connect(self.about)
+        menuAbout.addAction(aboutAction)
 
         # Main Widget
         mainWidget = QWidget(self)
@@ -69,6 +78,20 @@ class MainWindow(QMainWindow):
         self.mainTabWidget = MainTabWidget()
         newAction.triggered.connect(self.mainTabWidget.newTab)
         layout.addWidget(self.mainTabWidget)
+
+    def about(self):
+        aboutMessageBox = QMessageBox()
+        aboutMessageBox.setWindowTitle("Author")
+        aboutMessageBox.setText("Created by <a href='https://github.com/cpham19'>Calvin Pham</a>");
+        aboutMessageBox.setStyleSheet("""
+            QMessageBox {
+                background-color: rgb(255, 229, 204);
+                color: #fffff8;
+            }
+        """)
+
+        aboutMessageBox.exec()
+
 
 def main():
     app = QApplication([])

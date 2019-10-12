@@ -12,3 +12,9 @@ class ProgressDialog(QProgressDialog):
         self.setMaximum(maximum)
         self.setWindowFlags(Qt.Window| Qt.WindowTitleHint | Qt.CustomizeWindowHint)
         self.setCancelButton(None)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: rgb(255, 229, 204);
+                color: #fffff8;
+            }
+        """)

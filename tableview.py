@@ -19,6 +19,29 @@ class TableView(QTableView):
         self.tableModel = TableModel(self.data, self.headers)
         self.setModel(self.tableModel)
 
+        self.setStyleSheet("""
+            QHeaderView::section {
+                background-color: #646464;
+                padding: 4px;
+                border: 1px solid #fffff8;
+                font-size: 12px;
+                color: white;
+            }
+        
+            QTableView {
+                gridline-color: gray;
+            }
+        
+            QScrollBar:vertical {
+                background: rgb(49, 49, 49);
+            }
+            
+            QTableView QTableCornerButton::section {
+                background-color: #646464;
+                border: 1px solid #fffff8;
+            }
+        """)
+
     def getModel(self):
         return self.tableModel
 

@@ -1015,9 +1015,7 @@ class MLPGroupBox(QGroupBox):
         accuracy_list = cross_val_score(self.classifier, self.X, self.y, cv=int(self.cvSpinBox.text()),
                                         scoring='accuracy')
 
-        print("HELLO")
-
-        self.recordParametersRow = [self.testSizeSpinBox.text(), self.randomStateSpinBox.text(), self.cvSpinBox.text(), self.numberOfMaxIterationsSpinBox.text(), self.alphaSpinBox.text(), self.solverMlpComboBox.currentText(), hiddenLayersAndNodes, str(accuracy), str(accuracy_list.mean())]
+        self.recordParametersRow = [self.testSizeSpinBox.text(), self.randomStateSpinBox.text(), self.cvSpinBox.text(), self.numberOfMaxIterationsSpinBox.text(), str(float(self.alphaSpinBox.text())), self.solverMlpComboBox.currentText(), hiddenLayersAndNodes, str(accuracy), str(accuracy_list.mean())]
         self.resultTableModel.insertNewRow(self.recordParametersRow)
 
         progressDialog.setWindowTitle("Done...")

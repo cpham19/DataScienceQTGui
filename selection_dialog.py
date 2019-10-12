@@ -1,7 +1,7 @@
 import pandas as pd
 from functools import partial
 from tableview import TableView
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QDialog, QCheckBox, QRadioButton, QDialogButtonBox
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QDialog, QCheckBox, QRadioButton, QDialogButtonBox, QMessageBox, QApplication
 from PyQt5.QtCore import Qt
 
 # Selection Feature Dialog
@@ -18,12 +18,11 @@ class SelectionFeaturesDialog(QDialog):
 
         self.setWindowTitle("Select features and label")
         self.setWindowFlags(Qt.WindowTitleHint | Qt.CustomizeWindowHint)
-
-        self.setStyleSheet(""" 
-            # QWidget {
-            #     background: gray;
-            #     color:white;
-            # }
+        self.setStyleSheet("""
+            QDialog {
+                background-color: rgb(255, 229, 204);
+                color: #fffff8;
+            }
         """)
 
         self.resize(1280, 720)
@@ -72,7 +71,7 @@ class SelectionFeaturesDialog(QDialog):
         confirmButtonBox = QDialogButtonBox(self)
         confirmButtonBox.setOrientation(Qt.Horizontal)
         confirmButtonBox.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        confirmButtonBox.accepted.connect(self.accept)
+        confirmButtonBox.accepted.connect(self.confirm)
         confirmButtonBox.rejected.connect(self.reject)
 
         layout.addWidget(self.tableView)
@@ -80,6 +79,21 @@ class SelectionFeaturesDialog(QDialog):
         layout.addWidget(confirmButtonBox)
 
         self.setLayout(layout)
+
+    # Used to check if user hasn't checked anything. if there are no checked features or label, then warn the user
+    def confirm(self):
+        lengthOffeatures = len(self.getFeatures())
+        label = len(self.getLabel())
+        if(lengthOffeatures == 0 or label == 0):
+            QApplication.beep()
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('Select at least one feature and select the label!')
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        else:
+            self.accept()
 
     # Invoke when a checkbox is clicked
     def changeCheckboxState(self, checkbox):

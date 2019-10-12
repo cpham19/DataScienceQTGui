@@ -67,21 +67,13 @@ class MainTabWidget(QTabWidget):
 
         dialogCode = selectionFeaturesDialog.exec_()
 
-        # If Dialog was cancelled, then avoid opening a new tab
+        #If Dialog was cancelled, then avoid opening a new tab
         if dialogCode == 0:
-            return
-        elif (len(selectionFeaturesDialog.getFeatures()) == 0 or len(selectionFeaturesDialog.getLabel()) == 0):
-            QApplication.beep()
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText('Please open the CSV file again select at least one feature and select the label!')
-            msg.setWindowTitle("Error")
-            msg.exec_()
             return
 
         features = selectionFeaturesDialog.getFeatures()
         label = selectionFeaturesDialog.getLabel()
+
         tabGroupBox = AlgorithmGroupBox(path, features, label)
 
         pathToNewCSVIcon = os.path.dirname(os.path.realpath(__file__)) + "\\assets" + "\\csv_icon.png"
@@ -102,6 +94,8 @@ class AlgorithmGroupBox(QGroupBox):
         self.label = label
 
         self.df = pd.read_csv(path, sep=',')
+        self.checkCategoricalFeatures()
+
         self.X = self.df[self.features]
         self.y = self.df[self.label[0]]
         self.columns = self.features + self.label
@@ -112,25 +106,28 @@ class AlgorithmGroupBox(QGroupBox):
     def initUI(self):
         tabLayout = QVBoxLayout()
         self.tabTableView = TableView(self.data, self.columns)
+
         # Tab Widget
         tabWidget = TabWidget(self.X, self.y)
-        tabWidget.setStyleSheet(""" 
-                QTabBar::tab {
-                    height: 25px;
-                    width: 150px;
-                    font-size: 10px;
-                    color: black;
-                }
-
-                QTabBar::tab:selected {
-                    background-color: rgba(49,49,49, 0.7);
-                    color:white;
-                    border: 1px solid orange;
-                }
-        """)
         tabLayout.addWidget(self.tabTableView)
         tabLayout.addWidget(tabWidget)
         self.setLayout(tabLayout)
+
+    # Checking for categorical features and one-hot encoding them
+    def checkCategoricalFeatures(self):
+        featureDataframe = self.df[self.features]
+        categorical_features = featureDataframe.select_dtypes( exclude=['int', 'float', 'int32', 'float32', 'int64', 'float64']).columns
+        # Apply One-hot encoding to the selected categorical features
+        if len(categorical_features) != 0:
+            categorical_df = featureDataframe[categorical_features]
+            new_numerical_dataframe = pd.get_dummies(categorical_df)
+            self.df.drop(categorical_features, axis=1, inplace=True)
+            self.df = pd.concat([self.df, new_numerical_dataframe], axis=1)
+
+            # Remove the categorical features in the features array. Then adding the new one-hot encoding features to the old list
+            for feature in categorical_features:
+                self.features.remove(feature)
+            self.features = self.features + list(new_numerical_dataframe.columns)
 
 # An Inner QTabWidget that has different tabs for each machine learning algorithm
 class TabWidget(QTabWidget):
@@ -143,7 +140,17 @@ class TabWidget(QTabWidget):
     def initUI(self):
         self.setTabsClosable(False)
         self.setCurrentIndex(-1)
-        self.setStyleSheet("QTabBar::tab { height: 25px; width: 150px;}")
+        self.setStyleSheet("""
+            QTabBar::tab {
+                height: 50px; 
+                width: 175px;
+                font-size: 12px;
+            }
+            
+            QTabWidget::tab-bar {
+                alignment: center;
+            }
+        """)
         self.createTabs()
 
     def createTabs(self):
