@@ -3,10 +3,13 @@ from PyQt5.QtCore import Qt, QUrl, QVariant, QAbstractItemModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 class TableView(QTableView):
-    def __init__(self, data, headers):
+    def __init__(self, data = None, headers = None):
         super().__init__()
-        self.data = data
         self.headers = headers
+        if (data == None):
+            self.data = [[''] * len(self.headers)]
+        else:
+            self.data = data
         self.initUI()
 
     def initUI(self):

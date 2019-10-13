@@ -95,9 +95,6 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication([])
-    print(QStyleFactory.keys())
-    app.setStyle('')
-
     window = MainWindow()
     window.show()
     app.exec_()
