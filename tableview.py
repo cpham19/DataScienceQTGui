@@ -81,7 +81,7 @@ class TableModel(QStandardItemModel):
     def insertNewRow(self, row):
         newRow = []
         for col in row:
-            item = QStandardItem(col)
+            item = QStandardItem(str(col))
             newRow.append(item)
 
         self.appendRow(newRow)

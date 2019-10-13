@@ -6,7 +6,6 @@ from PyQt5.QtGui import QIcon
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.counter = 1
         self.initUI()
 
     def initUI(self):

@@ -1,4 +1,7 @@
-from PyQt5.QtWidgets import QApplication, QGridLayout, QGroupBox, QHBoxLayout, QFormLayout, QLabel, QPushButton, QSpinBox, QDoubleSpinBox, QComboBox, QMessageBox
+from PyQt5.QtWidgets import QApplication, QGridLayout, QGroupBox, QHBoxLayout, QFormLayout, QLabel, QPushButton, QSpinBox, QDoubleSpinBox, QComboBox, QMessageBox, QMainWindow
+from progress_dialog import ProgressDialog
+from tableview import TableView
+import numpy as np
 # Scikit Learn library
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -10,10 +13,6 @@ from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, roc_auc_score, classification_report, mean_squared_error, r2_score
 from sklearn.preprocessing import scale, LabelEncoder
-
-from progress_dialog import ProgressDialog
-from tableview import TableView
-
 class KNearestNeighborsGroupBox(QGroupBox):
     def __init__(self, X, y):
         super().__init__()
@@ -78,11 +77,17 @@ class KNearestNeighborsGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(cvLabel, self.cvSpinBox)
         self.parameterGroupBoxLayout.addRow(numberOfNeighborsLabel, self.numberOfNeighborsSpinBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -168,6 +173,11 @@ class KNearestNeighborsGroupBox(QGroupBox):
            """)
         resultsMessageBox.exec()
 
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
+
 class DecisionTreeGroupBox(QGroupBox):
     def __init__(self, X, y):
         super().__init__()
@@ -225,10 +235,16 @@ class DecisionTreeGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(cvLabel, self.cvSpinBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -313,6 +329,11 @@ class DecisionTreeGroupBox(QGroupBox):
            """)
         resultsMessageBox.exec()
 
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
+
 # Compute GroupBox for Sklearn algorithms
 class RandomForestGroupBox(QGroupBox):
     def __init__(self, X, y):
@@ -377,11 +398,17 @@ class RandomForestGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(cvLabel, self.cvSpinBox)
         self.parameterGroupBoxLayout.addRow(numberOfEstimatorsLabel, self.numberOfEstimatorsSpinBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -466,6 +493,11 @@ class RandomForestGroupBox(QGroupBox):
            """)
         resultsMessageBox.exec()
 
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
+
 # Compute GroupBox for Sklearn algorithms
 class LinearRegressionGroupBox(QGroupBox):
     def __init__(self, X, y):
@@ -521,9 +553,15 @@ class LinearRegressionGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -602,6 +640,11 @@ class LinearRegressionGroupBox(QGroupBox):
            """)
         resultsMessageBox.exec()
 
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
+
 # Compute GroupBox for Sklearn algorithms
 class LogisticRegressionGroupBox(QGroupBox):
     def __init__(self, X, y):
@@ -665,11 +708,17 @@ class LogisticRegressionGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(cvLabel, self.cvSpinBox)
         self.parameterGroupBoxLayout.addRow(solverLabel, self.solverComboBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -721,8 +770,6 @@ class LogisticRegressionGroupBox(QGroupBox):
         # Accuracy of testing data on predictive model
         accuracy = accuracy_score(y_test, y_predict)
 
-        print("HELLO")
-
         progressDialog.setWindowTitle("Computing cross-validation...")
         progressDialog.setValue(75)
         QApplication.processEvents()
@@ -754,6 +801,11 @@ class LogisticRegressionGroupBox(QGroupBox):
                }
            """)
         resultsMessageBox.exec()
+
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
 
 # Compute GroupBox for Sklearn algorithms
 class LinearSVMGroupBox(QGroupBox):
@@ -810,10 +862,16 @@ class LinearSVMGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(cvLabel, self.cvSpinBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -897,6 +955,11 @@ class LinearSVMGroupBox(QGroupBox):
                }
            """)
         resultsMessageBox.exec()
+
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
 
 # Compute GroupBox for Sklearn algorithms
 class MLPGroupBox(QGroupBox):
@@ -1005,6 +1068,11 @@ class MLPGroupBox(QGroupBox):
         self.computeButton.adjustSize()
         self.computeButton.clicked.connect(self.compute)
 
+        self.predictButton = QPushButton("Test Predictive model")
+        self.predictButton.adjustSize()
+        self.predictButton.setDisabled(True)
+        self.predictButton.clicked.connect(self.showPredictionWindow)
+
         self.parameterGroupBoxLayout.addRow(testSizeLabel, self.testSizeSpinBox)
         self.parameterGroupBoxLayout.addRow(randomStateLabel, self.randomStateSpinBox)
         self.parameterGroupBoxLayout.addRow(cvLabel, self.cvSpinBox)
@@ -1014,6 +1082,7 @@ class MLPGroupBox(QGroupBox):
         self.parameterGroupBoxLayout.addRow(hiddenLayerSizesLabel, self.numberOfHiddenLayerSizesSpinBox)
         self.parameterGroupBoxLayout.addRow(nodeLabel, self.numberOfNodesSpinBox)
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
         resultsGroupBox = QGroupBox("Results")
         resultsGroupBoxLayout = QGridLayout()
@@ -1033,6 +1102,9 @@ class MLPGroupBox(QGroupBox):
     def hiddenLayerValueChange(self):
         numberOfLayers = int(self.numberOfHiddenLayerSizesSpinBox.text())
         numberOfSpinBoxes = len(self.nodeSpinBoxes)
+
+        self.parameterGroupBoxLayout.removeWidget(self.predictButton)
+        self.parameterGroupBoxLayout.removeRow(self.parameterGroupBoxLayout.rowCount() - 1)
 
         self.parameterGroupBoxLayout.removeWidget(self.computeButton)
         self.parameterGroupBoxLayout.removeRow(self.parameterGroupBoxLayout.rowCount() - 1)
@@ -1057,6 +1129,7 @@ class MLPGroupBox(QGroupBox):
                 self.nodeSpinBoxes.append(newNodeSpinBox)
 
         self.parameterGroupBoxLayout.addRow(self.computeButton)
+        self.parameterGroupBoxLayout.addRow(self.predictButton)
 
     def compute(self):
         #Progress bar
@@ -1133,3 +1206,114 @@ class MLPGroupBox(QGroupBox):
                }
            """)
         resultsMessageBox.exec()
+
+        self.predictButton.setDisabled(False)
+
+    def showPredictionWindow(self):
+        predictionWindow = PredictionWindow("Prediction Window for K-Nearest Neighbors", self.X, self.y, self.classifier, self)
+
+class PredictionWindow(QMainWindow):
+    def __init__(self, title, X, y, classifier, parent = None):
+        super(PredictionWindow, self).__init__(parent)
+        # Main Window stuff
+        self.resize(1280, 500)
+        self.setWindowTitle(title)
+        self.X = X
+        self.y = y
+        self.classifier = classifier
+        self.initUI()
+        self.show()
+
+
+    def initUI(self):
+        predictionWindowGroupBox = QGroupBox("Prediction Window")
+        predictionWindowGroupBoxLayout = QHBoxLayout()
+        predictionWindowGroupBox.setLayout(predictionWindowGroupBoxLayout)
+
+        inputGroupBox = QGroupBox("User-Input Values")
+        inputGroupBox.setFixedWidth(300)
+        inputGroupBoxLayout = QFormLayout()
+        inputGroupBox.setLayout(inputGroupBoxLayout)
+
+        features = list(self.X.columns.values)
+        self.spinBoxes = []
+        for feature in features:
+            if self.X[feature].dtype == "int64":
+                intSpinBox = QSpinBox()
+                intSpinBox.setMinimum(1)
+                intSpinBox.setValue(1)
+                intSpinBox.adjustSize()
+                inputGroupBoxLayout.addRow(QLabel(feature), intSpinBox)
+                self.spinBoxes.append(intSpinBox)
+            elif self.X[feature].dtype == "uint8":
+                intSpinBox = QSpinBox()
+                intSpinBox.setMinimum(0)
+                intSpinBox.setMaximum(1)
+                intSpinBox.setValue(0)
+                intSpinBox.adjustSize()
+                inputGroupBoxLayout.addRow(QLabel(feature), intSpinBox)
+                self.spinBoxes.append(intSpinBox)
+            elif self.X[feature].dtype == "float64":
+                doubleSpinBox = QDoubleSpinBox()
+                doubleSpinBox.setMinimum(0.01)
+                doubleSpinBox.setDecimals(2)
+                doubleSpinBox.setValue(1.00)
+                doubleSpinBox.adjustSize()
+                inputGroupBoxLayout.addRow(QLabel(feature), doubleSpinBox)
+                self.spinBoxes.append(doubleSpinBox)
+
+        predictButton = QPushButton("Predict")
+        predictButton.clicked.connect(self.predict)
+        predictButton.adjustSize()
+        inputGroupBoxLayout.addRow(predictButton)
+
+        storedUserInputsGroupBox = QGroupBox("Stored User-Input Values")
+        storedUserInputsGroupBoxLayout = QGridLayout()
+        storedUserInputsGroupBox.setLayout(storedUserInputsGroupBoxLayout)
+
+        # Add Label column
+        features.append(self.y.name)
+        self.storedUserInputValuesTableView = TableView(None, features)
+        self.storedUserInputValuesTableView.getModel().removeRow(0)
+        storedUserInputsGroupBoxLayout.addWidget(self.storedUserInputValuesTableView)
+
+        predictionWindowGroupBoxLayout.addWidget(inputGroupBox)
+        predictionWindowGroupBoxLayout.addWidget(self.storedUserInputValuesTableView)
+        self.setCentralWidget(predictionWindowGroupBox)
+
+    def predict(self):
+        arrayOfUserInputValues = []
+
+        for spinbox in self.spinBoxes:
+            value = spinbox.text()
+            checkForInt = self.isint(value)
+            checkForFloat = self.isfloat(value)
+            if checkForInt == True:
+                arrayOfUserInputValues.append(int(value))
+            elif checkForFloat == True:
+                arrayOfUserInputValues.append(float(value))
+
+        # Turn a normal array into a numpty matrix
+        matrix = np.array(arrayOfUserInputValues).reshape(1, -1)
+
+        # Get prediction and add it to the user input values
+        prediction = self.classifier.predict(matrix)[0]
+        arrayOfUserInputValues.append(prediction)
+        self.storedUserInputValuesTableView.getModel().insertNewRow(arrayOfUserInputValues)
+
+
+    def isfloat(self, x):
+        try:
+            float(x)
+        except ValueError:
+            return False
+        else:
+            return True
+
+    def isint(self, x):
+        try:
+            int(x)
+        except ValueError:
+            return False
+        else:
+            return True
